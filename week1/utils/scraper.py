@@ -1,0 +1,41 @@
+from bs4 import BeautifulSoup
+import requests
+
+
+# Standard headers to fetch a website
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"
+}
+
+# requests is python http client library 
+# The response object contains information such as:
+# The response object contains information such as:
+    # response.status_code
+    # response.headers
+    # response.content
+    # response.text
+    # response.url
+# For example:
+# response.status_code
+
+# BeautifulSoup is an HTML/XML parsing library
+
+def fetch_website_contents(url):
+    """
+    Return the title and contents of the website at the given url;
+    truncate to 2,000 characters as a sensible limit
+    """
+    response = requests.get(url, headers=headers)
+    soup = BeautifulSoup(response.content, "html.parser")
+    title = (
+        soup.title.get_text(strip=True)
+        if soup.title
+        else "No title found"
+    )
+    if soup.body:
+        for irrelevant in soup.body(["script", "style", "img", "input"]):
+            irrelevant.decompose()
+        text = soup.body.get_text(separator="\n", strip=True)
+    else:
+        text = ""
+    return (title + "\n\n" + text)[:2_000]
